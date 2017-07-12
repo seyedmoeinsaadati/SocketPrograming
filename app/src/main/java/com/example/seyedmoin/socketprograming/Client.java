@@ -7,6 +7,7 @@ import android.widget.TextView;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,89 +15,72 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketAddress;
 import java.net.UnknownHostException;
 
-public class Client extends AsyncTask<Void, Void, Void> {
+public class Client extends AsyncTask<String, String, String> {
 
     String dstAddress;
     int dstPort;
     String response = "";
-    TextView textResponse;
     Socket socket;
 
     String Massage;
-    DataOutputStream dOut;
+    OutputStream out;
 
-    Client(String addr, int port, TextView textResponse, String msg) {
+    PrintWriter output;
+
+    public AsyncResult asyncResult = null;
+
+    Client(String addr, int port, AsyncResult asyncResult) {
         dstAddress = addr;
         dstPort = port;
-        this.textResponse = textResponse;
-        Massage = msg;
+        this.asyncResult = asyncResult;
     }
 
     @Override
-    protected Void doInBackground(Void... arg0) {
+    protected String doInBackground(String... params) {
 
         socket = null;
+        Massage = params[0];
 
         try {
-            socket = new Socket(dstAddress, dstPort);
+            SocketAddress socketAddress = new InetSocketAddress(dstAddress, dstPort);
+            socket = new Socket();
+            //socket.setTcpNoDelay(false);
+            //socket.setSoTimeout(5000);
+            socket.connect(socketAddress);
 
             if (socket.isConnected())
                 Log.e("Client", "C: Connected");
 
-            dOut = new DataOutputStream(socket.getOutputStream());
+            out = socket.getOutputStream();
+            output = new PrintWriter(out);
 
-            // Send first message
-            //dOut.writeByte(1);
-            dOut.writeUTF(Massage);
-            dOut.flush(); // Send off the data
+            output.println(Massage);
+            output.flush();
+            out.flush();
 
-
-            // Moin Saadati's Comment : Other Type For Send Message To Server
-            // 2/4/17 2:43 AM
-
-           /* // Send the second message
-            dOut.writeByte(2);
-            dOut.writeUTF(" B");
-            dOut.flush(); // Send off the data
-
-            // Send the third message
-            dOut.writeByte(3);
-            dOut.writeUTF(" C");
-            dOut.writeUTF(" D");
-            dOut.flush(); // Send off the data
-
-            // Send the exit message
-            dOut.writeByte(-1);
-            dOut.flush();*/
-
-            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(
-                    1024);
-            byte[] buffer = new byte[1024];
-
-            int bytesRead;
-            InputStream inputStream = socket.getInputStream();
-
-
-            // notice: inputStream.read() will block if no data return
-            while ((bytesRead = inputStream.read(buffer)) != -1) {
-                Log.e("While", "TRUE");
-                byteArrayOutputStream.write(buffer, 0, bytesRead);
-                response += byteArrayOutputStream.toString("UTF-8");
+            char[] buffer = new char[2048];
+            int charsRead = 0;
+            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            while ((charsRead = in.read(buffer)) != -1) {
+                response = new String(buffer).substring(0, charsRead);
+                Log.e("In While", "msg :" + response);
+                out.close();
             }
+
 
         } catch (UnknownHostException e) {
             e.printStackTrace();
-            response = "UnknownHostException: " + e.toString();
         } catch (IOException e) {
             e.printStackTrace();
-            response = "IOException: " + e.toString();
         } finally {
+
             if (socket != null) {
                 try {
-                    dOut.close();
                     socket.close();
                     Log.e("Client", "close");
                 } catch (IOException e) {
@@ -104,17 +88,14 @@ public class Client extends AsyncTask<Void, Void, Void> {
                 }
             }
         }
-        return null;
+        return response;
     }
 
     @Override
-    protected void onPostExecute(Void result) {
-        publishProgress(response);
+    protected void onPostExecute(String result) {
+        //Log.e("POST:", result);
+        asyncResult.onResponse(result);
         super.onPostExecute(result);
-    }
-
-    private void publishProgress(String response) {
-        textResponse.setText(response);
     }
 
 }

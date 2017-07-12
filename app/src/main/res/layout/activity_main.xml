@@ -6,6 +6,7 @@
 
     <!-- For Client Implementation-->
 
+
     <EditText
         android:id="@+id/addressEditText"
         android:layout_width="match_parent"
@@ -25,17 +26,69 @@
         android:hint="Massage" />
 
 
-    <Button
-        android:id="@+id/connectButton"
+    <GridLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Connect..." />
+        android:columnCount="3">
 
-    <Button
-        android:id="@+id/clearButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Clear" />
+        <Button
+            android:id="@+id/connectButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="onClick"
+            android:text="Send" />
+
+        <Button
+            android:id="@+id/btn_door"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="onClick"
+            android:text="Door" />
+
+        <Button
+            android:id="@+id/btn_door_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="onClick"
+            android:text="DStatus" />
+
+        <Button
+            android:id="@+id/btn_send_setting"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="onClick"
+            android:text="SSetting" />
+
+        <Button
+            android:id="@+id/btn_get_setting"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="onClick"
+            android:text="GSetting" />
+
+        <Button
+            android:id="@+id/btn_reset_setting"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="onClick"
+            android:text="Reset" />
+
+        <Button
+            android:id="@+id/btn_get_remotes"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="onClick"
+            android:text="GRemotes" />
+
+        <Button
+            android:id="@+id/btn_delete_remotes"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="onClick"
+            android:text="DARemote" />
+
+    </GridLayout>
+
 
     <TextView
         android:id="@+id/responseTextView"

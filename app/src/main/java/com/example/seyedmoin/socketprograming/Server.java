@@ -2,12 +2,14 @@ package com.example.seyedmoin.socketprograming;
 
 import android.util.Log;
 
+import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.ServerSocket;
@@ -92,51 +94,26 @@ public class Server {
         @Override
         public void run() {
             OutputStream outputStream;
-            //String msgReply = "Hello from Server, you are #" + cnt;
             String msgReply = "";
 
 
             try {
                 outputStream = hostThreadSocket.getOutputStream();
 
-                // zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz
-
-                DataInputStream dIn = new DataInputStream(hostThreadSocket.getInputStream());
-
-                msgReply += dIn.readUTF();
-
-                // // Moin Saadati's Comment : Other Type For Get Message From Client
-                // 2/4/17 2:48 AM
-
-//                boolean done = false;
-//                while (!done) {
-//                    byte messageType = dIn.readByte();
-//
-//                    switch (messageType) {
-//                        case 1: // Type A
-//                            msgReply += dIn.readUTF();
-//                            break;
-//                        case 2: // Type B
-//                            msgReply += dIn.readUTF();
-//                            break;
-//                        case 3: // Type C
-//                            msgReply += dIn.readUTF();
-//                            msgReply += dIn.readUTF();
-//                            break;
-//                        default:
-//                            done = true;
-//                    }
-//                }
+                BufferedReader in = new BufferedReader(new InputStreamReader(hostThreadSocket.getInputStream()));
+                while (true) {
+                    if ((msgReply = in.readLine()) != null) {
+                        break;
+                    }
+                }
 
                 PrintStream printStream = new PrintStream(outputStream);
-                printStream.print(msgReply);
+                printStream.println("R : " + msgReply);
                 printStream.close();
 
-                dIn.close();
                 message += "replayed: " + msgReply + "\n";
 
                 activity.runOnUiThread(new Runnable() {
-
                     @Override
                     public void run() {
                         activity.msg.setText(message);
